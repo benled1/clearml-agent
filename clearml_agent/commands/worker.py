@@ -4688,17 +4688,21 @@ class Worker(ServiceCommandSection):
             Path(home_folder).mkdir(parents=True, exist_ok=True)
 
         # move our entire venv into the new home
-        venv_folder = venv_folder.as_posix()
-        if not venv_folder.endswith(os.path.sep):
-            venv_folder += os.path.sep
-        new_venv_folder = os.path.join(home_folder, 'venv/')
-        shutil.move(venv_folder, new_venv_folder)
-        # allow everyone to access it
-        for f in Path(new_venv_folder).rglob('*'):
-            try:
-                f.chmod(0o0777)
-            except:
-                pass
+        try:
+            venv_folder = venv_folder.as_posix()
+            if not venv_folder.endswith(os.path.sep):
+                venv_folder += os.path.sep
+            new_venv_folder = os.path.join(home_folder, 'venv/')
+            shutil.move(venv_folder, new_venv_folder)
+            # allow everyone to access it
+            for f in Path(new_venv_folder).rglob('*'):
+                try:
+                    f.chmod(0o0777)
+                except:
+                    pass
+        except Exception as e:
+            print(f"Caught an error in clearml-agent: {e}")
+
         # make sure we will be able to access the cache folder (we assume we have the ability change mod)
         if sdk_cache_folder:
             sdk_cache_folder = Path(os.path.expandvars(sdk_cache_folder)).expanduser().absolute()
