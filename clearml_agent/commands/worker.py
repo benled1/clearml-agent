@@ -3009,7 +3009,7 @@ class Worker(ServiceCommandSection):
             os.environ['PYTHONPATH'] = os.pathsep.join(filter(None, (os.environ.get('PYTHONPATH', None), python_path)))
 
         # check if we want to run as another user, only supported on linux
-        if ENV_TASK_EXECUTE_AS_USER.get() and is_linux_platform():
+        if ENV_TASK_EXECUTE_AS_USER.get() and is_linux_platform() and venv_folder:
             command, script_dir = self._run_as_user_patch(
                 command, self._session.config_file,
                 script_dir, venv_folder,
@@ -4688,20 +4688,20 @@ class Worker(ServiceCommandSection):
             Path(home_folder).mkdir(parents=True, exist_ok=True)
 
         # move our entire venv into the new home
-        try:
-            venv_folder = venv_folder.as_posix()
-            if not venv_folder.endswith(os.path.sep):
-                venv_folder += os.path.sep
-            new_venv_folder = os.path.join(home_folder, 'venv/')
-            shutil.move(venv_folder, new_venv_folder)
-            # allow everyone to access it
-            for f in Path(new_venv_folder).rglob('*'):
-                try:
-                    f.chmod(0o0777)
-                except:
-                    pass
-        except Exception as e:
-            print(f"Caught an error in clearml-agent: {e}")
+        # try:
+        venv_folder = venv_folder.as_posix()
+        if not venv_folder.endswith(os.path.sep):
+            venv_folder += os.path.sep
+        new_venv_folder = os.path.join(home_folder, 'venv/')
+        shutil.move(venv_folder, new_venv_folder)
+        # allow everyone to access it
+        for f in Path(new_venv_folder).rglob('*'):
+            try:
+                f.chmod(0o0777)
+            except:
+                pass
+        # except Exception as e:
+        #     print(f"Caught an error in clearml-agent: {e}")
 
         # make sure we will be able to access the cache folder (we assume we have the ability change mod)
         if sdk_cache_folder:
