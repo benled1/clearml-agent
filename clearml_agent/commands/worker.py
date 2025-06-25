@@ -2987,7 +2987,7 @@ class Worker(ServiceCommandSection):
         else:
             print("No freeze information available")
 
-        print("Environment setup completed successfully\n")
+        print("Environment setup completed successfully from my custom clearml-agent :)\n")
 
         # update the jobs global environment variable
         os.environ.update(self._get_job_os_envs(current_task, log_level))
